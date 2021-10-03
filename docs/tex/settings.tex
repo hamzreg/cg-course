@@ -32,3 +32,27 @@
 
 % Абзацный отступ
 \usepackage{indentfirst}
+
+
+% Рисунки
+\usepackage{float}
+\usepackage[justification=centering]{caption}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.9}
+\usetikzlibrary{datavisualization}
+\usetikzlibrary{datavisualization.formats.functions}
+\usepackage{graphicx}
+\newcommand{\img}[3] {
+    \begin{figure}[h]
+        \center{\includegraphics[height=#1]{assets/img/#2}}
+        \caption{#3}
+        \label{img:#2}
+    \end{figure}
+}
+\newcommand{\boximg}[3] {
+    \begin{figure}[h]
+        \center{\fbox{\includegraphics[height=#1]{assets/img/#2}}}
+        \caption{#3}
+        \label{img:#2}
+    \end{figure}
+}
