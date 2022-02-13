@@ -32,7 +32,8 @@
 
 % Абзацный отступ
 \usepackage{indentfirst}
-
+\setlength{\parindent}{1.25cm}
+\linespread{1.25}
 
 % Рисунки
 \usepackage{float}
@@ -56,3 +57,11 @@
         \label{img:#2}
     \end{figure}
 }
+
+
+% pdf
+\usepackage{pdfpages}
+\usepackage[justification=centering]{caption} % Настройка подписей float объектов
+
+% Нумерация страниц
+\setcounter{page}{0}
