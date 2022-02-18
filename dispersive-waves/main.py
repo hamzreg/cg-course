@@ -48,7 +48,7 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
 
         # таймер
         timer = QtCore.QTimer(self)
-        timer.setInterval(50)
+        timer.setInterval(0.001)
         timer.timeout.connect(self.timerActions)
         timer.start()
 
@@ -122,7 +122,11 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
             self.translateVec["a"] = False
         elif event.key() == Qt.Key_D:
             self.translateVec["d"] = False
-
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_1:
+            self.myGL.randomDrop = not self.myGL.randomDrop
+            print("RANDOM DROP : press")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

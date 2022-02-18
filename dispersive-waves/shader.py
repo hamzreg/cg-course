@@ -80,6 +80,31 @@ class Shader:
         gl.glUniformMatrix4fv(location, 1, gl.GL_FALSE, glm.value_ptr(matrix))
 
 
+    def setMat3(self, name, matrix):
+        location = gl.glGetUniformLocation(self.progID, name)
+        gl.glUniformMatrix3fv(location, 1, gl.GL_FALSE, glm.value_ptr(matrix))
+
+
+    def setInt(self, name, value):
+        location = gl.glGetUniformLocation(self.progID, name)
+        print(name, value, location)
+        gl.glUniform1i(location, value)
+
+    def set3f(self, name, *values):
+        location = gl.glGetUniformLocation(self.progID, name)
+        gl.glUniform3f(location, *values)
+
+
+    def set2f(self, name, *values):
+        location = gl.glGetUniformLocation(self.progID, name)
+        gl.glUniform2f(location, *values)
+
+
+    def set1f(self, name, value):
+        location = gl.glGetUniformLocation(self.progID, name)
+        gl.glUniform1f(location, value)
+
+
     def setVec4(self, name, *values):
         location = gl.glGetUniformLocation(self.progID, name)
 
