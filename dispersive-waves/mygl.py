@@ -20,7 +20,7 @@ from model import Model
 
 from texture import Texture
 
-POINTS = 100
+POINTS = 256
 
 skybox: dict = {
     gl.GL_TEXTURE_CUBE_MAP_POSITIVE_X: "./cubemap/env/right.jpg",
@@ -63,6 +63,44 @@ class myGL(QtOpenGL.QGLWidget):
         self.currTex = Texture(POINTS)
         self.nextTex = Texture(POINTS)
 
+        # создаем сетку
+        self.vertices, self.indices = self.createGrid(POINTS)
+
+        # cоздание объекта вершинного массива
+        self.waterVAO = gl.glGenVertexArrays(1)
+        gl.glBindVertexArray(self.waterVAO)
+
+        # копирование массива вершин в вершинный буфер
+        self.waterVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.waterVBO)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, self.vertices, gl.GL_STATIC_DRAW)
+
+        # копирование индексного массива в элементный буфер
+        self.waterEBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER,self.waterEBO)
+        gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, self.indices, gl.GL_STATIC_DRAW)
+
+        # установка указателей вершинных атрибутов
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 12, None)
+        gl.glEnableVertexAttribArray(0)
+
+        # для поверхности
+        self.overlay = gl.glGenTextures(1)
+        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, self.overlay)
+
+        for mode, imgPath in skybox.items():
+            img = Image.open(imgPath, mode='r').resize((512, 512))
+            img_data = np.array(list(img.getdata()), np.uint8)
+            gl.glTexImage2D(mode, 0, gl.GL_RGB8, img.width, img.height,
+                         0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE, img_data)
+
+        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_WRAP_R, gl.GL_CLAMP_TO_EDGE)
+        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, 0)
+
 
     def resizeGL(self, width, height):
         print("RESIZE")
@@ -93,26 +131,6 @@ class myGL(QtOpenGL.QGLWidget):
     def paintWater(self):
         print("WATER: paint  --- start")
 
-        # создаем сетку
-        vertices, indices = self.createGrid(POINTS)
-
-        # cоздание объекта вершинного массива
-        VAO = gl.glGenVertexArrays(1)
-        gl.glBindVertexArray(VAO)
-
-        # копирование массива вершин в вершинный буфер
-        VBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices, gl.GL_STATIC_DRAW)
-
-        # копирование индексного массива в элементный буфер
-        EBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, EBO)
-        gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, indices, gl.GL_STATIC_DRAW)
-
-        # установка указателей вершинных атрибутов
-        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 12, None)
-        gl.glEnableVertexAttribArray(0)
 
         print("WATER: update --- start")
 
@@ -140,10 +158,9 @@ class myGL(QtOpenGL.QGLWidget):
         self.currTex.bind()
         shaders.setInt("currTexture", self.currTex.id)
 
-        gl.glBindVertexArray(VAO)
-        gl.glDrawElements(gl.GL_TRIANGLES, indices.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
+        gl.glBindVertexArray(self.waterVAO)
+        gl.glDrawElements(gl.GL_TRIANGLES, self.indices.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
         gl.glBindVertexArray(0)
-        
         
         self.prevTex.unbind()
         self.currTex.unbind()
@@ -176,28 +193,11 @@ class myGL(QtOpenGL.QGLWidget):
         shaders.setInt("heightMap", self.currTex.id)
         shaders.set1f("step", 1.0 / self.currTex.size)
 
-
-        overlay = gl.glGenTextures(1)
-        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, overlay)
-
-        for mode, imgPath in skybox.items():
-            img = Image.open(imgPath, mode='r').resize((512, 512))
-            img_data = np.array(list(img.getdata()), np.uint8)
-            gl.glTexImage2D(mode, 0, gl.GL_RGB8, img.width, img.height,
-                         0, gl.GL_RGB, gl.GL_UNSIGNED_BYTE, img_data)
-
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
-        gl.glTexParameteri(gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_WRAP_R, gl.GL_CLAMP_TO_EDGE)
-        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, 0)
-
         gl.glActiveTexture(gl.GL_TEXTURE0)
-        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, overlay)
+        gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, self.overlay)
 
-        gl.glBindVertexArray(VAO)
-        gl.glDrawElements(gl.GL_TRIANGLES, indices.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
+        gl.glBindVertexArray(self.waterVAO)
+        gl.glDrawElements(gl.GL_TRIANGLES, self.indices.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
         gl.glBindVertexArray(0)
     
         self.currTex.unbind()
@@ -242,10 +242,10 @@ class myGL(QtOpenGL.QGLWidget):
         shaders.setMat4("model", self.object.getModelMatrix())
 
         # рисовка
-        # gl.glBindVertexArray(VAO)
-        # gl.glDrawElements(gl.GL_TRIANGLES, 36, gl.GL_UNSIGNED_INT, None)
-        # gl.glBindVertexArray(0)
-        # gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
+        gl.glBindVertexArray(VAO)
+        gl.glDrawElements(gl.GL_TRIANGLES, 36, gl.GL_UNSIGNED_INT, None)
+        gl.glBindVertexArray(0)
+        #gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
         print("CUBE: paint    --- end")
 
         self.paintWater()

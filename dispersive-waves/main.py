@@ -48,7 +48,7 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
 
         # таймер
         timer = QtCore.QTimer(self)
-        timer.setInterval(0.001)
+        timer.setInterval(50)
         timer.timeout.connect(self.timerActions)
         timer.start()
 
