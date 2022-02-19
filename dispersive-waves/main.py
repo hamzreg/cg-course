@@ -111,7 +111,12 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
             self.translateVec["a"] = True
         elif event.key() == Qt.Key_D:
             self.translateVec["d"] = True
-
+        elif event.key() == Qt.Key_1:
+            self.myGL.randomDrop = not self.myGL.randomDrop
+            print("RANDOM DROP : press")
+        elif event.key() == Qt.Key_2:
+            self.myGL.moveSphere = not self.myGL.moveSphere
+            print("MOVE SHERE : press")
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key_W:
@@ -123,10 +128,6 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
         elif event.key() == Qt.Key_D:
             self.translateVec["d"] = False
     
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_1:
-            self.myGL.randomDrop = not self.myGL.randomDrop
-            print("RANDOM DROP : press")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

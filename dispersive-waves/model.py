@@ -43,8 +43,5 @@ class Model(object):
 
         f.close()
 
-        print(vrtcs)
-        print(indcs)
-
         self.vertices = np.array(vrtcs, dtype = 'float32')
         self.indices = np.array(indcs, dtype='int32')

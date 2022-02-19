@@ -102,6 +102,7 @@ class Shader:
 
     def set1f(self, name, value):
         location = gl.glGetUniformLocation(self.progID, name)
+        print(name, value, location)
         gl.glUniform1f(location, value)
 
 
