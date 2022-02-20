@@ -53,4 +53,5 @@ def create_grid(n_points: int):
 
 
 if __name__ == "__main__":
-    print(np.random.random(size=3))
+    for i in range (10):
+        print(np.random.random(size=3))

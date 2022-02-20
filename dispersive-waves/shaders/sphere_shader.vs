@@ -5,7 +5,7 @@ layout(location=1) in vec2 sphereTexture;
 layout(location=2) in vec3 normal;
 
 
-const float time = 0.05;
+//const float time = 0.05;
 
 uniform float change;
 uniform mat4 perspective;
@@ -20,11 +20,8 @@ out vec2 vUV;
 void main() {
     vec3 pos = position;
 
-    if (pos.x < 1.0)
-    {
-        pos.x += change;
-        pos.z += change;
-    }
+    pos.x += change;
+    pos.z += change;
 
     gl_Position = perspective * view * model * vec4(pos, 1.0);
     vFragPos = vec3(model * vec4(position, 1.0));

@@ -1,3 +1,5 @@
+from distutils.util import change_root
+from turtle import position
 from PyQt5 import QtGui, QtOpenGL
 from PyQt5.QtGui import QMatrix4x4, QCursor, QColor
 from PyQt5.QtCore import Qt, QPoint
@@ -10,6 +12,7 @@ import glm
 import glfw
 import numpy as np
 import math
+from random import random, uniform
 
 from shader import Shader
 
@@ -61,13 +64,13 @@ class myGL(QtOpenGL.QGLWidget):
         # self.model.load("./data/water_cube.obj")
 
         self.randomDrop = False
-        self.moveSphere = False
+        self.moveSphere = True
 
         self.oldCenter = [0, 0, 0]
         self.center = [0, 0, 0]
         self.change = 0
         self.velocity = 0.05
-        self.time = 0.05
+        self.time = 0.005
         self.route = POSITIVE
 
 
@@ -163,6 +166,8 @@ class myGL(QtOpenGL.QGLWidget):
 
         self.sphereTexture = self.create_texture()
         self.sphereCenter = glm.vec3(0, 0, 0)
+        self.nowCenter = glm.vec3(0, 0, 0)
+        self.oldCenter = glm.vec3(0, 0, 0)
         self.velocity = 1
 
 
@@ -212,15 +217,23 @@ class myGL(QtOpenGL.QGLWidget):
         # uniform
         shaders.setInt("dropWater", self.randomDrop)
         shaders.setInt("moveSphere", self.moveSphere)
+        
+        shaders.set2f("center", *np.random.random(size=2))
 
-        self.center = np.random.random(size=3)
-        shaders.set3f("center", *self.center)
+        print(self.nowCenter, self.oldCenter)
+        print(self.moveSphere)
 
-        self.oldCenter = np.random.random(size=3)
-        shaders.set3f("oldCenter", *self.oldCenter)
+        y1 = uniform(0, 0.2)
+        y2 = uniform(0, 0.2)
+        print(y1, y2)
+        print(y1, y2)
 
+        shaders.set3f("nowCenter", self.nowCenter.x, y1, self.nowCenter.z)
+        shaders.set3f("oldCenter", self.oldCenter.x, y2, self.oldCenter.z)
+        # shaders.set3f("nowCenter", abs(self.nowCenter.x), abs(self.nowCenter.y), abs(self.nowCenter.z))
+        # shaders.set3f("oldCenter", abs(self.oldCenter.x), abs(self.oldCenter.y), abs(self.oldCenter.z))
         shaders.set1f("step", 1.0 / self.nextTex.size)
-
+        
         self.prevTex.bind()
         shaders.setInt("prevTexture", self.prevTex.id)
 
@@ -339,7 +352,7 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
 
-        tex = Image.open("./data/sphere.jpg", mode='r')
+        tex = Image.open("./data/color.jpg", mode='r')
         img_data = np.array(list(tex.getdata()), np.uint8)
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB8, tex.width, tex.height, 0,
                     gl.GL_RGB, gl.GL_UNSIGNED_BYTE, img_data)
@@ -350,6 +363,8 @@ class myGL(QtOpenGL.QGLWidget):
 
 
     def paintSphere(self):
+        print("SPHERE: draw   --- start")
+
         shaders = Shader("sphere_shader.vs", "sphere_shader.fs")
         shaders.use()
 
@@ -358,6 +373,9 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBindTexture(gl.GL_TEXTURE_2D, self.sphereTexture)
 
         # Uniform
+        self.oldCenter = self.nowCenter
+        self.nowCenter.x = self.change
+        self.nowCenter.z = self.change
         shaders.set1f("change", self.change)
         shaders.setMat4("perspective", self.camera.getProjMatrix())
         shaders.setMat4("view", self.camera.getVeiwMatrix())
@@ -377,23 +395,24 @@ class myGL(QtOpenGL.QGLWidget):
         else:
             self.change -= self.time * self.velocity
 
-        if self.center[0] + self.change + 0.2 >= 1.0:
+        if self.sphereCenter.x + self.change + 0.2 >= 1.0:
             self.route = NEGATIVE
-        
-        if self.center[0] + self.change - 0.2 <= -1.0:
+        elif self.sphereCenter.x + self.change - 0.2 <= -1.0:
             self.route = POSITIVE
 
         # Unbind texture
         gl.glActiveTexture(gl.GL_TEXTURE0)
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
+        print("SPHERE: draw   --- end")
+
     def paintGL(self):
 
         # очищаем экран
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-
-        self.paintWater()
         self.paintSphere()
+        self.paintWater()
+
 
 
     def translate(self, vec):
