@@ -60,18 +60,19 @@ class myGL(QtOpenGL.QGLWidget):
         self.object = Object()
         self.camera = Camera()
 
+
         # self.model = Model()
         # self.model.load("./data/water_cube.obj")
 
         self.randomDrop = False
-        self.moveSphere = True
+        self.moveSphere = False
 
         self.oldCenter = [0, 0, 0]
         self.center = [0, 0, 0]
         self.change = 0
-        self.velocity = 0.05
         self.time = 0.005
         self.route = POSITIVE
+        self.load = False
 
 
     def initializeGL(self):
@@ -125,50 +126,11 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, 0)
 
 
-
-        # SPHERE
-        vertices, textures, normals = self.create_sphere(N_STACK, N_SECTOR)
-        self.sphereVertices = np.dstack((vertices, textures, normals))
-        self.sphereElements = self.sphere_triangulation(N_STACK, N_SECTOR)
-
-        # Vertex Array Objects (VAO)
-        self.sphereVAO = gl.glGenVertexArrays(1)
-        gl.glBindVertexArray(self.sphereVAO)
-
-        # Vertex Buffer Object (VBO)
-        self.sphereVBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.sphereVBO)
-        gl.glBufferData(gl.GL_ARRAY_BUFFER,
-                     self.sizeof(self.sphereVertices),
-                     self.sphereVertices.ravel(),
-                     gl.GL_STATIC_DRAW)
-
-        # Element Buffer Object (EBO)
-        self.sphereEBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, self.sphereEBO)
-        gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER,
-                     self.sizeof(self.sphereElements),
-                     self.sphereElements.ravel(),
-                     gl.GL_STATIC_DRAW)
-
-        #      'position' ----v
-        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 32, gl.GLvoidp(0))
-        gl.glEnableVertexAttribArray(0)
-        #       'texture' ----v
-        gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, gl.GL_FALSE, 32, gl.GLvoidp(12))
-        gl.glEnableVertexAttribArray(1)
-        #        'normal' ----v
-        gl.glVertexAttribPointer(2, 3, gl.GL_FLOAT, gl.GL_FALSE, 32, gl.GLvoidp(20))
-        gl.glEnableVertexAttribArray(2)
-
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)  # Unbind VBO
-        gl.glBindVertexArray(0)  # Unbind VAO
-
         self.sphereTexture = self.create_texture()
         self.sphereCenter = glm.vec3(0, 0, 0)
         self.nowCenter = glm.vec3(0, 0, 0)
         self.oldCenter = glm.vec3(0, 0, 0)
-        self.velocity = 1
+        self.velocity = 0.5
 
 
     def resizeGL(self, width, height):
@@ -290,10 +252,50 @@ class myGL(QtOpenGL.QGLWidget):
         print("WATER: paint   --- end")
 
 
+    def loadSphere(self):
+        # SPHERE
+        vertices, textures, normals = self.create_sphere(N_STACK, N_SECTOR)
+        self.sphereVertices = np.dstack((vertices, textures, normals))
+        self.sphereElements = self.sphere_triangulation(N_STACK, N_SECTOR)
+
+        # Vertex Array Objects (VAO)
+        self.sphereVAO = gl.glGenVertexArrays(1)
+        gl.glBindVertexArray(self.sphereVAO)
+
+        # Vertex Buffer Object (VBO)
+        self.sphereVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.sphereVBO)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER,
+                     self.sizeof(self.sphereVertices),
+                     self.sphereVertices.ravel(),
+                     gl.GL_STATIC_DRAW)
+
+        # Element Buffer Object (EBO)
+        self.sphereEBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, self.sphereEBO)
+        gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER,
+                     self.sizeof(self.sphereElements),
+                     self.sphereElements.ravel(),
+                     gl.GL_STATIC_DRAW)
+
+        #      'position' ----v
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 32, gl.GLvoidp(0))
+        gl.glEnableVertexAttribArray(0)
+        #       'texture' ----v
+        gl.glVertexAttribPointer(1, 3, gl.GL_FLOAT, gl.GL_FALSE, 32, gl.GLvoidp(12))
+        gl.glEnableVertexAttribArray(1)
+        #        'normal' ----v
+        gl.glVertexAttribPointer(2, 3, gl.GL_FLOAT, gl.GL_FALSE, 32, gl.GLvoidp(20))
+        gl.glEnableVertexAttribArray(2)
+
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)  # Unbind VBO
+        gl.glBindVertexArray(0)  # Unbind VAO
+
+
     # latitude and longitude ~ sector and stacks
     def create_sphere(self,nStack: int,
                     nSector: int,
-                    radius: float = 0.2) -> np.array:
+                    radius: float = 0.3) -> np.array:
         vertices, textures, normals = list(), list(), list()
         sectorStep = 2.0 * math.pi / nSector
         stackStep = math.pi / nStack
@@ -389,10 +391,11 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBindVertexArray(self.sphereVAO)
         gl.glDrawElements(gl.GL_TRIANGLES, self.sphereElements.size, gl.GL_UNSIGNED_INT, None)
         gl.glBindVertexArray(0)  # Unbind VAO
-
-        if self.route == POSITIVE:
+        
+        if self.route == POSITIVE and self.moveSphere:
             self.change += self.time * self.velocity
-        else:
+        
+        if self.route == NEGATIVE and self.moveSphere:
             self.change -= self.time * self.velocity
 
         if self.sphereCenter.x + self.change + 0.2 >= 1.0:
@@ -410,10 +413,14 @@ class myGL(QtOpenGL.QGLWidget):
 
         # очищаем экран
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        self.paintSphere()
+
+        if self.load:
+            self.paintSphere()
         self.paintWater()
 
 
+    def changeVelocity(self, value):
+        self.velocity = value / 10
 
     def translate(self, vec):
         self.camera.translate(*vec)

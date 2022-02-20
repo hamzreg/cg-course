@@ -27,7 +27,13 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
 
         self.translateVec = {"w": False, "s" : False, "a": False, "d": False}
 
+        # слайдер
+        self.speedSlider.valueChanged.connect(self.changeSpeed)
         # кнопки
+
+        # загрузка
+        self.loadBtn.clicked.connect(self.load)
+
         # масштаб
         self.plusBtn.clicked.connect(self.scalePlus)
         self.minusBtn.clicked.connect(self.scaleMinus)
@@ -100,6 +106,15 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
 
     def downRotate(self):
         self.myGL.rotate((1, 0, 0))
+
+    
+    def load(self):
+        self.myGL.load = True
+        self.myGL.loadSphere()
+
+
+    def changeSpeed(self, value):
+        self.myGL.changeVelocity(value)
 
 
     def keyPressEvent(self, event):
