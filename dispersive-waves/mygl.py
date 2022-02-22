@@ -116,7 +116,7 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, self.indices, gl.GL_STATIC_DRAW)
 
         # установка указателей вершинных атрибутов
-        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 12, None)
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 12, gl.GLvoidp(0))
         gl.glEnableVertexAttribArray(0)
 
         # наложение отражения облаков
@@ -279,7 +279,7 @@ class myGL(QtOpenGL.QGLWidget):
 
 
         gl.glBindVertexArray(self.sphereVAO)
-        gl.glDrawElements(gl.GL_TRIANGLES, self.sphereElements.size, gl.GL_UNSIGNED_INT, None)
+        gl.glDrawElements(gl.GL_TRIANGLES, self.sphereElements.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
         gl.glBindVertexArray(0)
         
         if self.route == POSITIVE and self.moveSphere:
