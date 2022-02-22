@@ -3,6 +3,10 @@ import glm
 from object import Object
 
 class Camera(Object):
+    """
+        Класс для работы с камерой.
+    """
+
     def __init__(self, angle=45, ratio=1, near=0.01, far=100):
         super().__init__()
         self.angle = angle
@@ -114,4 +118,3 @@ class Camera(Object):
             self.angle = 1.0
         if self.angle > 100.0:
             self.angle = 100.0
-

@@ -4,9 +4,10 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QColor
 from ui_mainwindow import Ui_main_window
-
 import PyQt5.QtCore as QtCore
 from PyQt5.QtCore import Qt
+
+from constants import *
 
 BACKGROUNDSTRING = "background-color: %s"
 
@@ -29,8 +30,8 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
 
         # слайдер
         self.speedSlider.valueChanged.connect(self.changeSpeed)
-        # кнопки
 
+        # кнопки
         # загрузка
         self.loadBtn.clicked.connect(self.load)
 
@@ -43,8 +44,6 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
         self.downBtn.clicked.connect(self.moveDown)
         self.rightBtn.clicked.connect(self.moveRight)
         self.leftBtn.clicked.connect(self.moveLeft)
-        # self.fromBtn.clicked.connect(self.moveFrom)
-        # self.toBtn.clicked.connect(self.moveTo)
 
         # поворот
         self.leftTurnBtn.clicked.connect(self.leftRotate)
@@ -54,9 +53,10 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
 
         # таймер
         timer = QtCore.QTimer(self)
-        timer.setInterval(5)
+        timer.setInterval(TIME)
         timer.timeout.connect(self.timerActions)
         timer.start()
+
 
     def timerActions(self):
         if self.colorWindow:
@@ -128,10 +128,8 @@ class main_window(QtWidgets.QMainWindow, Ui_main_window):
             self.translateVec["d"] = True
         elif event.key() == Qt.Key_1:
             self.myGL.randomDrop = not self.myGL.randomDrop
-            print("RANDOM DROP : press")
         elif event.key() == Qt.Key_2:
             self.myGL.moveSphere = not self.myGL.moveSphere
-            print("MOVE SHERE : press")
 
     def keyReleaseEvent(self, event):
         if event.key() == Qt.Key_W:

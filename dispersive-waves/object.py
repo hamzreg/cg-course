@@ -1,7 +1,6 @@
 import glm
 
 class Object(object):
-
     def __init__(self):
         self.modelMatrix= glm.mat4(1.0)
 

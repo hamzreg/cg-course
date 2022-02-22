@@ -1,0 +1,7 @@
+TIME = 5
+MS_IN_S = 1000
+
+MIN_VELOCITY = 0.5
+
+POSITIVE = True
+NEGATIVE = False
