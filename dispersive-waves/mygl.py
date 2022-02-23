@@ -46,6 +46,7 @@ class myGL(QtOpenGL.QGLWidget):
         self.moveSphere = False
         self.nowCenter = glm.vec3(0, 0, 0)
         self.oldCenter = glm.vec3(0, 0, 0)
+        self.sphereRadius = 0.02
         self.velocity = MIN_VELOCITY
         self.change = 0
         self.time = TIME / MS_IN_S
@@ -161,6 +162,7 @@ class myGL(QtOpenGL.QGLWidget):
         y1 = uniform(0, 0.2)
         y2 = uniform(0, 0.2)
 
+        shaders.set1f("sphereRadius", self.sphereRadius)
         shaders.set3f("nowCenter", self.nowCenter.x, y1, self.nowCenter.z)
         shaders.set3f("oldCenter", self.oldCenter.x, y2, self.oldCenter.z)
         shaders.set1f("step", 1.0 / self.nextTex.size)
@@ -252,6 +254,23 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBindVertexArray(0)
 
 
+    def moveSphere(self):
+        """
+            Движение сферы.
+        """
+
+        if self.route == POSITIVE and self.moveSphere:
+            self.change += self.time * self.velocity
+        
+        if self.route == NEGATIVE and self.moveSphere:
+            self.change -= self.time * self.velocity
+
+        if START_SPHERE_CENTER.x + self.change + self.sphereRadius >= POSITIVE_BORDER:
+            self.route = NEGATIVE
+        elif START_SPHERE_CENTER.x + self.change - self.sphereRadius <= NEGATIVE_BORDER:
+            self.route = POSITIVE
+
+
     def paintSphere(self):
         """
             Отрисовка сферы.
@@ -281,17 +300,8 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBindVertexArray(self.sphereVAO)
         gl.glDrawElements(gl.GL_TRIANGLES, self.sphereElements.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
         gl.glBindVertexArray(0)
-        
-        if self.route == POSITIVE and self.moveSphere:
-            self.change += self.time * self.velocity
-        
-        if self.route == NEGATIVE and self.moveSphere:
-            self.change -= self.time * self.velocity
 
-        if START_SPHERE_CENTER.x + self.change + SPHERE_RADIUS >= POSITIVE_BORDER:
-            self.route = NEGATIVE
-        elif START_SPHERE_CENTER.x + self.change - SPHERE_RADIUS <= NEGATIVE_BORDER:
-            self.route = POSITIVE
+        self.moveSphere()
 
         gl.glActiveTexture(gl.GL_TEXTURE0)
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
