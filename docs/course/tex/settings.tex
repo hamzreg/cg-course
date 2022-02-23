@@ -67,6 +67,27 @@
 }
 
 
+% Код
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{ %
+	language=python,   					% выбор языка для подсветки	
+	basicstyle=\small\sffamily,			% размер и начертание шрифта для подсветки кода
+	numbers=left,						% где поставить нумерацию строк (слева\справа)
+	%numberstyle=,					% размер шрифта для номеров строк
+	stepnumber=1,						% размер шага между двумя номерами строк
+	numbersep=5pt,						% как далеко отстоят номера строк от подсвечиваемого кода
+	frame=single,						% рисовать рамку вокруг кода
+	tabsize=4,							% размер табуляции по умолчанию равен 4 пробелам
+	captionpos=t,						% позиция заголовка вверху [t] или внизу [b]
+	breaklines=true,					
+	breakatwhitespace=true,				% переносить строки только если есть пробел
+	escapeinside={\#*}{*)},				% если нужно добавить комментарии в коде
+	backgroundcolor=\color{white},
+}
+
+
 % pdf
 \usepackage{pdfpages}
 \usepackage[justification=centering]{caption} % Настройка подписей float объектов

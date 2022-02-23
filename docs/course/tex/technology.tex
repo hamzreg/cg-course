@@ -12,12 +12,89 @@
 	\item простота синтаксиса.
 \end{itemize}
 
+Для написания вершинных и фрагментных шейдеров графического контейнера OpenGL использовался язык GLSL. Данный язык шейдеров был выбран из-за следующих характеристик:
+
+\begin{itemize}
+	\item контроль графического потока без использования машинно-зависимых языков;
+	\item высокая производительность;
+	\item наличие дополнительных функций и типов данных для работы с матрицами и векторами.
+\end{itemize}
+
 Пользовательский интерфейс программного обеспечения создан при помощи Qt Designer, так как инструмент позволяет быстро разработать интерфейс и хорошо задокументирован.
 
 Для ускорения процесса создание программного обеспечения в качестве среды разработки выбран текстовый редактор Visual Studio Code.
 
 \section{Реализация алгоритмов}
 
+В листинге \ref{lst:wave} представлен алгоритм образования волн при движении твердого тела, в листинге \ref{lst:sphere} --- алгоритм перемещения сферы.
 
+\begin{center}
+\captionsetup{justification=raggedright,singlelinecheck=off}
+\begin{lstlisting}[label=lst:wave,caption=Алгоритм образования волн при движении предмета]
+in vec2 coord;
+
+const float w = 1.985;
+
+uniform sampler2D currTexture;
+uniform sampler2D prevTexture;
+uniform bool moveSphere;
+uniform float sphereRadius;
+uniform vec3 nowCenter;
+uniform vec3 oldCenter;
+uniform float step;
+
+float volumeInSphere(vec3 sphereCenter)
+{
+    vec3 toCenter = vec3(coord.x * 2.0 - 1.0, 0.0, coord.y * 2.0 - 1.0) - sphereCenter;
+    float t = length(toCenter) / sphereRadius;
+    float dy = exp(-pow(t * 1.5, 6.0));
+    float ymin = min(0.0, sphereCenter.y - dy);
+    float ymax = min(max(0.0, sphereCenter.y + dy), ymin + 2.0 * dy);
+
+    return (ymax - ymin) * 0.1;
+}
+
+void main()
+{
+    vec2 dx = vec2(step, 0.0);
+    vec2 dy = vec2(0.0, step);
+
+    float average = (texture(currTexture, coord + dy).y +
+                     texture(currTexture, coord - dy).y +
+                     texture(currTexture, coord + dx).y +
+                     texture(currTexture, coord - dx).y  ) * 0.25;
+
+    float prev = texture(prevTexture, coord).y;
+    float h = (1.0 - w) * prev + w * average;
+
+    if (moveSphere)
+    {
+        h += volumeInSphere(oldCenter);
+        h -= volumeInSphere(nowCenter);
+    }
+
+    gl_FragColor = vec4(0.0, h, 0.0, 1.0);
+}
+\end{lstlisting}
+\end{center}
+
+\begin{center}
+\captionsetup{justification=raggedright,singlelinecheck=off}
+\begin{lstlisting}[label=lst:sphere,caption=Алгоритм перемещения сферы]
+def moveSphere(self):
+	if self.route == POSITIVE and self.moveSphere:
+    		self.change += self.time * self.velocity
+        
+	if self.route == NEGATIVE and self.moveSphere:
+		self.change -= self.time * self.velocity
+
+	if START_SPHERE_CENTER.x + self.change + self.sphereRadius >= POSITIVE_BORDER:
+		self.route = NEGATIVE
+	elif START_SPHERE_CENTER.x + self.change - self.sphereRadius <= NEGATIVE_BORDER:
+		self.route = POSITIVE
+\end{lstlisting}
+\end{center}
 
 \section*{Вывод}
+
+Были описаны инструменты разработки программного продукта, и представлены алгоритмы моделирования волнового процесса в результате движения объекта.
