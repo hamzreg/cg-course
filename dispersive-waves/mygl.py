@@ -8,6 +8,7 @@ import glm
 import numpy as np
 from random import uniform
 from PIL import Image
+from time import time
 
 from shader import Shader
 from object import Object
@@ -27,6 +28,11 @@ class myGL(QtOpenGL.QGLWidget):
     def __init__(self, parent = None):
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
+
+        # эксперимент
+        self.frames = 0
+        self.timeStart = time()
+        self.fps = 0
 
         self.camMode = False
         self.setMouseTracking(self.camMode)
@@ -86,6 +92,17 @@ class myGL(QtOpenGL.QGLWidget):
         self.camera.continousTranslate(transVec)
         self.color = color
         self.updateGL()
+
+        # эксперимент
+        self.frames += 1
+        timeEnd = time()
+
+        if timeEnd - self.timeStart > 0:
+            self.fps = self.frames // (timeEnd - self.timeStart)
+            self.frames = 0
+            self.timeStart = timeEnd
+
+        print(POINTS, self.fps)
 
 
     def createWater(self):
@@ -254,7 +271,7 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glBindVertexArray(0)
 
 
-    def moveSphere(self):
+    def moveObject(self):
         """
             Движение сферы.
         """
@@ -301,7 +318,7 @@ class myGL(QtOpenGL.QGLWidget):
         gl.glDrawElements(gl.GL_TRIANGLES, self.sphereElements.size, gl.GL_UNSIGNED_INT, gl.GLvoidp(0))
         gl.glBindVertexArray(0)
 
-        self.moveSphere()
+        self.moveObject()
 
         gl.glActiveTexture(gl.GL_TEXTURE0)
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
@@ -374,11 +391,6 @@ class myGL(QtOpenGL.QGLWidget):
             self.cursor.setShape(self.cursorShapes[self.camMode])
             self.setCursor(self.cursor)
             self.setMouseTracking(self.camMode)
-
-        if self.camMode:
-            print("on")
-        else:
-            print("off")
 
 
     def mouseMoveEvent(self, event):
