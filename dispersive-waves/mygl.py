@@ -276,11 +276,13 @@ class myGL(QtOpenGL.QGLWidget):
             Движение сферы.
         """
 
-        if self.route == POSITIVE and self.moveSphere:
-            self.change += self.time * self.velocity
-        
-        if self.route == NEGATIVE and self.moveSphere:
-            self.change -= self.time * self.velocity
+        if self.moveSphere:
+            if self.route == POSITIVE:
+                sign = 1
+            else:
+                sign = -1
+            
+            self.change += sign * self.time * self.velocity
 
         if START_SPHERE_CENTER.x + self.change + self.sphereRadius >= POSITIVE_BORDER:
             self.route = NEGATIVE

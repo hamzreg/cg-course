@@ -8,8 +8,7 @@
 
 \begin{itemize}
 	\item наличие библиотек необходимых для реализации всех требуемых функций;
-	\item возможность использования объектно-ориентированного подхода;
-	\item простота синтаксиса.
+	\item возможность использования объектно-ориентированного подхода.
 \end{itemize}
 
 Для написания вершинных и фрагментных шейдеров графического контейнера OpenGL использовался язык GLSL. Данный язык шейдеров был выбран из-за следующих характеристик:
@@ -20,13 +19,13 @@
 	\item наличие дополнительных функций и типов данных для работы с матрицами и векторами.
 \end{itemize}
 
-Пользовательский интерфейс программного обеспечения создан при помощи Qt Designer, так как инструмент позволяет быстро разработать интерфейс и хорошо задокументирован.
+Пользовательский интерфейс программного обеспечения создан при помощи Qt Designer, так как инструмент позволяет быстро разработать интерфейс.
 
-Для ускорения процесса создание программного обеспечения в качестве среды разработки выбран текстовый редактор Visual Studio Code.
+Для ускорения процесса создания программного обеспечения в качестве среды разработки выбран текстовый редактор Visual Studio Code.
 
 \section{Реализация алгоритмов}
 
-В листинге \ref{lst:wave} представлен алгоритм образования волн при движении твердого тела, в листинге \ref{lst:sphere} --- алгоритм перемещения сферы.
+В листинге \ref{lst:wave} представлен алгоритм образования волн при движении твердого тела, в листинге \ref{lst:sphere} --- алгоритм перемещения предмета.
 
 \begin{center}
 \captionsetup{justification=raggedright,singlelinecheck=off}
@@ -80,13 +79,15 @@ void main()
 
 \begin{center}
 \captionsetup{justification=raggedright,singlelinecheck=off}
-\begin{lstlisting}[label=lst:sphere,caption=Алгоритм перемещения сферы]
-def moveSphere(self):
-	if self.route == POSITIVE and self.moveSphere:
-    		self.change += self.time * self.velocity
-        
-	if self.route == NEGATIVE and self.moveSphere:
-		self.change -= self.time * self.velocity
+\begin{lstlisting}[label=lst:sphere,caption=Алгоритм перемещения предмета]
+def moveObject(self):
+	if self.moveSphere:
+		if self.route == POSITIVE:
+			sign = 1
+		else:
+			sign = -1
+
+		self.change += sign * self.time * self.velocity
 
 	if START_SPHERE_CENTER.x + self.change + self.sphereRadius >= POSITIVE_BORDER:
 		self.route = NEGATIVE
