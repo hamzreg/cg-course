@@ -5,6 +5,7 @@
 *.gz
 *.bbl
 *.blg
+*.bak
 
 # Python files
 *.pyc
