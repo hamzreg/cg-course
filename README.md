@@ -1,6 +1,6 @@
 # dispersive-waves
 
-<img src="https://github.com/hamzreg/cg-course/raw/master/docs/course/tex/img/example-first.png" width="500">
+<img src="https://github.com/hamzreg/cg-course/raw/master/docs/course/tex/img/example-first.png" width="700">
 
 ### О проекте
 
