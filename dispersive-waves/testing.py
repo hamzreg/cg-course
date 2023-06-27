@@ -15,9 +15,9 @@ def getGraphTest():
 
     plot.plot(points, results)
     plt.grid()
-    plt.title("Зависимость производительности от числа точек сетки")
-    plt.ylabel("Производительность, к/c")
-    plt.xlabel("Число точек сетки, шт.")
+    plt.title("Dependence of performance on the number of grid points")
+    plt.ylabel("Performance, frames per second")
+    plt.xlabel("Number of grid points, pieces")
 
     plt.hlines(60, 0, 1008, color = "red", linestyle = "--")
     plt.vlines(1008, 0, 60, color = "red", linestyle = "--")
